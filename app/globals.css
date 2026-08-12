@@ -461,6 +461,83 @@ h1 {
 .mini-btn-danger:hover {
 	background: var(--danger-soft);
 }
+.mini-btn:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+}
+.mini-btn:disabled:hover {
+	background: transparent;
+	color: var(--text-muted);
+}
+
+.limpar-btn {
+	margin-top: 20px;
+}
+
+/* ---- Stepper (+/-) ---- */
+
+.stepper {
+	display: inline-flex;
+	align-items: center;
+	border: 1px solid var(--border);
+	border-radius: 8px;
+	background: var(--surface);
+	overflow: hidden;
+	width: fit-content;
+}
+
+.stepper-btn {
+	width: 32px;
+	height: 34px;
+	flex-shrink: 0;
+	border: none;
+	background: var(--bg);
+	color: var(--text);
+	font-size: 16px;
+	line-height: 1;
+	cursor: pointer;
+}
+.stepper-btn:hover:not(:disabled) {
+	background: var(--accent-soft);
+	color: var(--accent);
+}
+.stepper-btn:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
+}
+
+.stepper-input {
+	width: 64px;
+	height: 34px;
+	border: none;
+	border-left: 1px solid var(--border);
+	border-right: 1px solid var(--border);
+	text-align: center;
+	font-family: var(--mono);
+	font-size: 14px;
+	color: var(--text);
+	background: var(--surface);
+	/* remove as setinhas nativas do input number - a UI já tem os botões +/- */
+	-moz-appearance: textfield;
+}
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+.stepper-input:focus {
+	outline: 2px solid var(--accent);
+	outline-offset: -1px;
+}
+
+.campo-faltas {
+	max-width: 200px;
+	margin-bottom: 20px;
+}
+
+.trabalho-item .stepper {
+	flex-shrink: 0;
+}
 
 .form-trabalho {
 	margin-top: 16px;

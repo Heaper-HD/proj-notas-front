@@ -21,8 +21,15 @@ chama os endpoints (ver "API (backend)" abaixo) e renderiza o que volta.
 - `/aluno/notas` — aluno vê as próprias notas (A1, A2, trabalhos da A3)
   e a situação, só leitura.
 - `/aluno/faltas` — aluno vê o total de faltas e se está dentro do limite.
+- `/aluno/calculadora` — calculadora de "e se": aluno simula A1, A2,
+  quantos trabalhos de A3 quiser e faltas, com botões de +/-. **100%
+  client-side, não chama a API, não salva nada** — só espelha em
+  JavaScript a mesma conta que o backend faz (`lib/calculoNotas.js`),
+  pra o aluno testar cenários antes das notas serem lançadas de verdade.
 
-Regras de negócio (aplicadas pelo **backend**, o front só exibe o resultado):
+Regras de negócio (aplicadas pelo **backend** para os dados reais — a
+calculadora do aluno replica a mesma conta localmente, só que sem ler
+nem gravar nada):
 
 - A1 e A2 são provas: nota única de 0 a 30 cada.
 - A3 é a **soma dos trabalhos** lançados pelo professor (cada um 0 a 40,
@@ -269,7 +276,10 @@ app/                    rotas (App Router)
   aluno/layout.js        guarda de sessão + sidebar do aluno
   aluno/notas/           notas (leitura)
   aluno/faltas/          faltas (leitura)
-components/             Sidebar, StatusBadge
+  aluno/calculadora/     simulação client-side, não chama a API
+components/             Sidebar, StatusBadge, NumberStepper
 lib/api.js              cliente da API, sessão (localStorage) e endpoints
+lib/calculoNotas.js     mesma conta do backend, replicada em JS puro
+                        (só usada pela calculadora - não lê/grava nada)
 scripts/build.mjs       build estático (resolve o next local, sem npx)
 ```

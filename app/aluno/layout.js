@@ -8,6 +8,7 @@ import Sidebar from '../../components/Sidebar';
 const ITENS = [
 	{ href: '/aluno/notas', label: 'Notas' },
 	{ href: '/aluno/faltas', label: 'Faltas' },
+	{ href: '/aluno/calculadora', label: 'Calculadora' },
 ];
 
 export default function AlunoLayout({ children }) {
