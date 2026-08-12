@@ -1,27 +1,66 @@
 'use client';
 
 import { useState } from 'react';
-import { API_BASE_URL } from '../lib/api';
+import { useRouter } from 'next/navigation';
+import { login, registrarAluno, salvarSessao, ApiError } from '../lib/api';
 
 export default function Home() {
-	const [status, setStatus] = useState(null);
-	const [checking, setChecking] = useState(false);
+	const router = useRouter();
+	const [perfil, setPerfil] = useState('professor');
+	const [modo, setModo] = useState('login'); // 'login' | 'cadastro' (só pra aluno)
+	const [identificador, setIdentificador] = useState('');
+	const [nome, setNome] = useState('');
+	const [senha, setSenha] = useState('');
+	const [confirmarSenha, setConfirmarSenha] = useState('');
+	const [carregando, setCarregando] = useState(false);
+	const [erro, setErro] = useState(null);
 
-	async function testarConexao() {
-		setChecking(true);
-		setStatus(null);
+	function trocarPerfil(novoPerfil) {
+		setPerfil(novoPerfil);
+		setModo('login');
+		setErro(null);
+	}
+
+	function trocarModo(novoModo) {
+		setModo(novoModo);
+		setErro(null);
+	}
+
+	async function entrar() {
+		const resposta = await login({ perfil, identificador, senha });
+		salvarSessao(resposta.token, resposta.usuario);
+		router.push(resposta.usuario.perfil === 'professor' ? '/professor/notas' : '/aluno/notas');
+	}
+
+	async function cadastrar() {
+		if (senha !== confirmarSenha) {
+			setErro('As senhas não coincidem.');
+			return;
+		}
+		const resposta = await registrarAluno({ ra: identificador, nome, senha });
+		salvarSessao(resposta.token, resposta.usuario);
+		router.push('/aluno/notas');
+	}
+
+	async function handleSubmit(event) {
+		event.preventDefault();
+		setErro(null);
+		setCarregando(true);
 		try {
-			const res = await fetch(API_BASE_URL);
-			setStatus({
-				ok: true,
-				message: `Respondeu com status ${res.status}`,
-			});
+			if (modo === 'cadastro') {
+				await cadastrar();
+			} else {
+				await entrar();
+			}
 		} catch (err) {
-			setStatus({ ok: false, message: err.message });
+			setErro(err instanceof ApiError ? err.message : 'Não foi possível continuar. Tente novamente.');
 		} finally {
-			setChecking(false);
+			setCarregando(false);
 		}
 	}
+
+	const rotuloIdentificador =
+		perfil === 'professor' ? 'Matrícula ou e-mail' : modo === 'cadastro' ? 'RA (novo cadastro)' : 'RA';
 
 	return (
 		<div className="page">
@@ -32,42 +71,105 @@ export default function Home() {
 						alt="FADERGS"
 						className="logo"
 					/>
-					<span className="badge">
-						template-front-next-javascript
-					</span>
+					<span className="badge">notas</span>
 				</div>
 
-				<h1>Esse projeto ainda não tem interface.</h1>
+				<h1>Sistema de Notas e Frequência</h1>
 				<p className="lede">
-					Esta é a página padrão do template — substitua o conteúdo de{' '}
-					<code>app/page.js</code> pelo que seu projeto realmente
-					precisa.
+					{modo === 'cadastro' ? 'Crie sua conta com o seu RA.' : 'Acesse com seu perfil para continuar.'}
 				</p>
 
-				<div className="divider" />
-
-				<div className="api-panel">
-					<span className="api-label">API configurada</span>
-					<code className="api-url">
-						{API_BASE_URL ||
-							'(NEXT_PUBLIC_API_BASE_URL não definida)'}
-					</code>
+				<div className="tabs" role="tablist">
+					<button
+						type="button"
+						role="tab"
+						aria-selected={perfil === 'professor'}
+						className={`tab ${perfil === 'professor' ? 'active' : ''}`}
+						onClick={() => trocarPerfil('professor')}
+					>
+						Professor
+					</button>
+					<button
+						type="button"
+						role="tab"
+						aria-selected={perfil === 'aluno'}
+						className={`tab ${perfil === 'aluno' ? 'active' : ''}`}
+						onClick={() => trocarPerfil('aluno')}
+					>
+						Aluno
+					</button>
 				</div>
 
-				<button
-					className="test-btn"
-					onClick={testarConexao}
-					disabled={!API_BASE_URL || checking}
-				>
-					{checking ? 'Testando…' : 'Testar conexão com a API'}
-				</button>
+				<form className="form" onSubmit={handleSubmit}>
+					<label className="field">
+						<span>{rotuloIdentificador}</span>
+						<input
+							type="text"
+							value={identificador}
+							onChange={(e) => setIdentificador(e.target.value)}
+							required
+							autoComplete="username"
+						/>
+					</label>
 
-				{status && (
-					<div
-						className={`status-row ${status.ok ? 'status-ok' : 'status-fail'}`}
+					{perfil === 'aluno' && modo === 'cadastro' && (
+						<label className="field">
+							<span>Nome</span>
+							<input
+								type="text"
+								value={nome}
+								onChange={(e) => setNome(e.target.value)}
+								required
+								autoComplete="name"
+							/>
+						</label>
+					)}
+
+					<label className="field">
+						<span>Senha</span>
+						<input
+							type="password"
+							value={senha}
+							onChange={(e) => setSenha(e.target.value)}
+							required
+							minLength={modo === 'cadastro' ? 6 : undefined}
+							autoComplete={modo === 'cadastro' ? 'new-password' : 'current-password'}
+						/>
+					</label>
+
+					{perfil === 'aluno' && modo === 'cadastro' && (
+						<label className="field">
+							<span>Confirmar senha</span>
+							<input
+								type="password"
+								value={confirmarSenha}
+								onChange={(e) => setConfirmarSenha(e.target.value)}
+								required
+								minLength={6}
+								autoComplete="new-password"
+							/>
+						</label>
+					)}
+
+					<button className="test-btn" type="submit" disabled={carregando}>
+						{carregando ? 'Enviando…' : modo === 'cadastro' ? 'Criar conta' : 'Entrar'}
+					</button>
+				</form>
+
+				{perfil === 'aluno' && (
+					<button
+						type="button"
+						className="link-btn"
+						onClick={() => trocarModo(modo === 'cadastro' ? 'login' : 'cadastro')}
 					>
+						{modo === 'cadastro' ? 'Já tenho conta — entrar' : 'Não tenho conta — criar com meu RA'}
+					</button>
+				)}
+
+				{erro && (
+					<div className="status-row status-fail">
 						<span className="status-dot" />
-						{status.message}
+						{erro}
 					</div>
 				)}
 			</div>
