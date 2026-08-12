@@ -71,7 +71,7 @@ export default function Home() {
 						alt="FADERGS"
 						className="logo"
 					/>
-					<span className="badge">notas</span>
+					<span className="badge">FAD-Notas</span>
 				</div>
 
 				<h1>Sistema de Notas e Frequência</h1>

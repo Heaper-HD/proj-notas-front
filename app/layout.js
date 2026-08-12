@@ -8,7 +8,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata = {
-	title: 'FADConecta',
+	title: 'FAD-Notas',
 };
 
 export default function RootLayout({ children }) {

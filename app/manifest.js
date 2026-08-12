@@ -2,8 +2,8 @@ export const dynamic = 'force-static';
 
 export default function manifest() {
 	return {
-		name: 'FADConecta',
-		short_name: 'FADConecta',
+		name: 'FAD-Notas',
+		short_name: 'FAD-Notas',
 		icons: [
 			{
 				src: '/icons/android-chrome-192x192.png',

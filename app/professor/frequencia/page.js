@@ -53,7 +53,7 @@ export default function FrequenciaProfessorPage() {
 		<div className="painel">
 			<h1>Frequência</h1>
 			<p className="lede">
-				Acima de 12 faltas totais, o aluno é reprovado por frequência — mesmo com média final aceitável.
+				Acima de 13 faltas totais, o aluno é reprovado por frequência — mesmo com média final aceitável.
 			</p>
 
 			<label className="field">
